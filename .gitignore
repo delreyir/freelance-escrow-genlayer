@@ -1,0 +1,6 @@
+node_modules/
+.next/
+.env.local
+deploy/node_modules/
+__pycache__/
+*.pyc
