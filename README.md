@@ -37,44 +37,44 @@ freelance-escrow-genlayer/
     └── package.json
 ```
 
+## Deployed Contract
+
+```
+Network: GenLayer Studionet
+Address: 0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357
+```
+
+You can interact with this contract directly via [GenLayer Studio](https://studio.genlayer.com) — import by address.
+
 ## Setup
 
-### 1. Install GenLayer CLI & Start Studio
+### 1. Install GenLayer CLI
 
 ```bash
-pip install genlayer
-genlayer init
-genlayer up
+npm install -g genlayer
+genlayer network set studionet
 ```
 
 ### 2. Deploy the Contract
 
-Load `contracts/freelance_escrow.py` in GenLayer Studio (http://localhost:8080), deploy it, and copy the contract address.
-
-Or via CLI:
 ```bash
-genlayer deploy contracts/freelance_escrow.py
+genlayer account create --name deployer --password "yourpass"
+genlayer account unlock --password "yourpass"
+genlayer deploy --contract contracts/freelance_escrow.py
 ```
 
-### 3. Configure Frontend
+Or use the already-deployed address above.
+
+### 3. Run Frontend Locally
 
 ```bash
 cd frontend
 npm install
-```
-
-Edit `.env.local` with your contract address:
-```
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYOUR_DEPLOYED_ADDRESS
-```
-
-### 4. Run Frontend
-
-```bash
+echo "NEXT_PUBLIC_CONTRACT_ADDRESS=0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357" > .env.local
 npm run dev
 ```
 
-Open http://localhost:3000
+The app will be available at your local development server.
 
 ## Contract Methods
 
