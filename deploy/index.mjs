@@ -1,4 +1,5 @@
 import { createClient, createAccount } from "genlayer-js";
+import { studionet } from "genlayer-js/chains";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -7,15 +8,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const contractPath = resolve(__dirname, "../contracts/freelance_escrow.py");
 const code = readFileSync(contractPath, "utf-8");
 
+// Server-side / CLI deployment uses an ephemeral account.
+// The frontend uses the user's MetaMask via the wallet adapter.
 const account = createAccount();
 
-// Use GenLayer Studio hosted (studionet)
 const client = createClient({
-  chain: {
-    id: 61_999,
-    name: "GenLayer Studionet",
-    rpcUrls: { default: { http: ["https://studio.genlayer.com/api"] } },
-  },
+  chain: studionet,
   account,
 });
 

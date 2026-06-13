@@ -63,9 +63,11 @@ cd frontend
 npm install
 ```
 
-Edit `.env.local` with your contract address:
+Create `.env.local`:
 ```
 NEXT_PUBLIC_CONTRACT_ADDRESS=0xYOUR_DEPLOYED_ADDRESS
+# Optional, defaults to "studionet". Other options: localnet | testnetAsimov | testnetBradbury
+NEXT_PUBLIC_GENLAYER_NETWORK=studionet
 ```
 
 ### 4. Run Frontend
@@ -74,7 +76,16 @@ NEXT_PUBLIC_CONTRACT_ADDRESS=0xYOUR_DEPLOYED_ADDRESS
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000, click **Connect Wallet** (MetaMask). The app will switch MetaMask to the configured GenLayer network and use the connected account to sign transactions.
+
+## Wallet Adapter
+
+The frontend uses two GenLayer clients:
+
+- `readClient` — built once at module load, talks directly to GenLayer RPC for `readContract` / `getTransaction` / `waitForTransactionReceipt`. No wallet needed.
+- `writeClient` — built per-action via `createWriteClient(address)` using `window.ethereum` as the EIP-1193 provider. Every `writeContract` triggers a MetaMask popup signed by the connected account.
+
+Network and chain switching is handled by `client.connect("studionet")` so the user's wallet is added/switched to the right GenLayer chain on connect.
 
 ## Contract Methods
 
