@@ -1,100 +1,113 @@
-# ⚖️ Freelance Escrow with AI Arbitration — GenLayer
+# 🛡️ FreelanceShield
 
-Decentralized freelance marketplace where payments are locked in escrow and disputes are resolved by AI validators through GenLayer's consensus mechanism.
+**Freelance escrow with AI dispute resolution.**
 
-## Architecture
+🔗 **Live app:** https://freelanceshield.pages.dev
+📜 **Contract (GenLayer Studionet):** `0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357`
 
-```
-Frontend (Next.js) → GenLayerJS SDK → GenLayer Network → FreelanceEscrow Contract
-                                                              ↓
-                                                    AI Validators (LLM consensus)
-```
+---
+
+## The Problem
+
+Freelance platforms like Fiverr and Upwork rely on centralized support teams to resolve disputes — slow, opaque, and often unfair. Clients fear paying upfront; freelancers fear delivering without guarantee of payment.
+
+FreelanceShield locks the payment in escrow on-chain and, when a dispute happens, lets GenLayer's AI validators read the agreed requirements and the actual deliverable to decide a fair split — in minutes, not weeks.
+
+---
 
 ## How It Works
 
-1. **Client** posts a job with GEN locked in escrow
-2. **Freelancer** accepts the job
-3. **Freelancer** submits the deliverable
-4. **Client** either:
-   - ✅ Approves → payment released to freelancer
-   - ❌ Disputes → AI arbitration is triggered
-5. **AI Arbitration**: Multiple AI validators independently evaluate the deliverable against requirements and reach consensus on a fair split
+1. **Connect your wallet** (MetaMask, Rabby, or any EVM wallet — no Snap required)
+2. **Client posts a job** with a description, requirements, deadline, and GEN locked in escrow.
+3. **Freelancer accepts** and submits the deliverable before the deadline.
+4. **Client resolves it:**
+   - ✅ **Approve** → payment released to the freelancer, or
+   - ❌ **Dispute** → AI arbitration is triggered.
+5. **AI arbitration** — validators evaluate the deliverable against the requirements and reach consensus on a fair split (freelancer / client / partial). Funds are distributed accordingly.
+
+After completion, client and freelancer can rate each other (1–5), building on-chain reputation.
+
+---
+
+## Why GenLayer?
+
+A deterministic contract can hold escrow but can't judge whether delivered work "meets the spec." GenLayer validators read both the requirements and the deliverable and reach consensus on a subjective decision — the decision field must match exactly and the payout percentage must agree within a tolerance, so the split is fair and tamper-resistant.
+
+---
+
+## Wallet & Network
+
+Standard EVM wallet, normal signing popup — **no GenLayer Snap**. On connect it adds/switches to the **GenLayer Studio Network** (chain `61999`, RPC `https://studio.genlayer.com/api`).
+
+---
+
+## Contract API
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `create_job(title, description, requirements, deadline_hours)` | payable | Post a job, lock escrow |
+| `accept_job(job_id)` | write | Freelancer accepts |
+| `submit_deliverable(job_id, deliverable)` | write | Freelancer submits work |
+| `approve_deliverable(job_id)` | write | Client approves → pay |
+| `raise_dispute(job_id, reason)` | write | Client disputes |
+| `resolve_dispute(job_id)` | write (AI) | AI arbitrates the split |
+| `cancel_job(job_id)` | write | Cancel an open job, refund |
+| `claim_expired(job_id)` | write | Reclaim escrow if deadline passed with no delivery |
+| `rate_freelancer(job_id, score)` / `rate_client(job_id, score)` | write | 1–5 rating |
+| `get_job(job_id)` / `get_job_count()` / `get_rating(address)` | view | Reads |
+
+**Consensus rule:** arbitration `decision` must match exactly; `freelancer_percent` within ±10.
+
+---
 
 ## Project Structure
 
 ```
 freelance-escrow-genlayer/
 ├── contracts/
-│   └── freelance_escrow.py      # GenLayer Intelligent Contract
-└── frontend/
-    ├── src/
-    │   ├── app/
-    │   │   ├── layout.tsx
-    │   │   └── page.tsx         # Main UI
-    │   └── lib/
-    │       └── genlayer.ts      # SDK config
-    ├── .env.local               # Contract address
-    └── package.json
+│   └── freelance_escrow.py  # GenLayer Intelligent Contract (Python)
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx     # SaaS dashboard + sidebar UI
+│   │   └── lib/
+│   │       └── genlayer.ts  # Wallet connect (no Snap) + read client
+│   ├── next.config.js
+│   └── package.json
+└── README.md
 ```
 
-## Deployed Contract
+---
 
-```
-Network: GenLayer Studionet
-Address: 0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357
-```
-
-You can interact with this contract directly via [GenLayer Studio](https://studio.genlayer.com) — import by address.
-
-## Setup
-
-### 1. Install GenLayer CLI
+## Run Locally
 
 ```bash
 npm install -g genlayer
 genlayer network set studionet
-```
-
-### 2. Deploy the Contract
-
-```bash
 genlayer account create --name deployer --password "yourpass"
 genlayer account unlock --password "yourpass"
 genlayer deploy --contract contracts/freelance_escrow.py
-```
 
-Or use the already-deployed address above.
-
-### 3. Run Frontend Locally
-
-```bash
 cd frontend
 npm install
-echo "NEXT_PUBLIC_CONTRACT_ADDRESS=0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357" > .env.local
 npm run dev
 ```
 
-The app will be available at your local development server.
+---
 
-## Contract Methods
+## Tech Stack
 
-| Method | Type | Description |
-|--------|------|-------------|
-| `create_job(title, description, requirements)` | payable write | Client creates job with GEN escrow |
-| `accept_job(job_id)` | write | Freelancer accepts a job |
-| `submit_deliverable(job_id, deliverable)` | write | Freelancer submits work |
-| `approve_deliverable(job_id)` | write | Client approves and releases payment |
-| `raise_dispute(job_id, reason)` | write | Client disputes the deliverable |
-| `resolve_dispute(job_id)` | write (AI) | Triggers AI arbitration with consensus |
-| `get_job(job_id)` | view | Get job details |
-| `get_job_count()` | view | Total number of jobs |
+| Layer | Technology |
+|-------|-----------|
+| Smart contract | Python — GenLayer Intelligent Contract |
+| AI consensus | `gl.vm.run_nondet_unsafe` + partial field matching |
+| Frontend | Next.js (static export) + TypeScript |
+| SDK | genlayer-js |
+| Hosting | Cloudflare Pages |
 
-## AI Arbitration
+---
 
-When a dispute is triggered, the contract uses `gl.vm.run_nondet_unsafe` with:
-- **Leader**: An AI evaluates the deliverable vs requirements and outputs a decision (freelancer/client/split) with a percentage
-- **Validators**: Independently run the same evaluation and verify:
-  - Decision field matches exactly
-  - Freelancer percentage is within ±10% tolerance
+## License
 
-The escrowed funds are split according to the consensus result.
+MIT
