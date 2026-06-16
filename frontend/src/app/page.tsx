@@ -73,6 +73,18 @@ export default function Home() {
         {nav === "dashboard" && (
           <>
             <h1 style={{ marginTop: 0 }}>Dashboard</h1>
+            <div style={{ ...cardW, marginBottom: 22, borderLeft: "4px solid #2563eb" }}>
+              <h3 style={{ marginTop: 0 }}>What FreelanceShield does</h3>
+              <p style={{ color: "#475569", lineHeight: 1.6, marginTop: 4 }}>A freelance marketplace where the client's payment is locked in escrow up front. If the delivered work is disputed, GenLayer's AI validators read the requirements and the deliverable and decide a fair split — no middleman, no waiting weeks for support.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 10, marginTop: 12 }}>
+                {[["1", "Connect wallet"], ["2", "Client posts a job & locks GEN in escrow"], ["3", "Freelancer accepts & submits the deliverable"], ["4", "Client approves → pay, or disputes → AI arbitrates the split"]].map(([n, t]) => (
+                  <div key={n} style={{ background: "#f1f5f9", borderRadius: 8, padding: "10px 12px" }}>
+                    <span style={{ color: "#2563eb", fontWeight: 800, fontSize: 12 }}>STEP {n}</span>
+                    <div style={{ fontSize: 13, color: "#334155", marginTop: 3 }}>{t}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 24 }}>
               {[["Open Jobs", stats.open, "#2563eb"], ["Active", stats.active, "#d97706"], ["Completed", stats.done, "#16a34a"]].map(([l, v, c], i) => (
                 <div key={i} style={{ ...cardW, borderTop: `3px solid ${c}` }}>
