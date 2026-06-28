@@ -3,7 +3,6 @@
 **Freelance escrow with AI dispute resolution.**
 
 🔗 **Live app:** https://freelanceshield.pages.dev
-📜 **Contract (GenLayer Studionet):** `0xEf2647EeA410292d37AB82C3F39472D9cE0Dc357`
 
 ---
 
