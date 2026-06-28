@@ -125,21 +125,43 @@ Return JSON:
     "reasoning": "brief explanation",
     "freelancer_percent": 0-100
 }}"""
-            response = gl.nondet.exec_prompt(prompt)
-            return json.loads(response)
+            raw = gl.nondet.exec_prompt(prompt, response_format="json")
+            if not isinstance(raw, dict):
+                raw = {}
+            decision = str(raw.get("decision", "split")).strip().lower()
+            if decision not in ("freelancer", "client", "split"):
+                decision = "split"
+            try:
+                pct = max(0, min(100, int(raw.get("freelancer_percent", 50))))
+            except (TypeError, ValueError):
+                pct = 50
+            if decision == "freelancer":
+                pct = 100
+            elif decision == "client":
+                pct = 0
+            return {
+                "decision": decision,
+                "reasoning": str(raw.get("reasoning", ""))[:1000],
+                "freelancer_percent": pct,
+            }
 
         def validator_fn(leader_result) -> bool:
+            # Robust consensus: agree on the normalized decision only.
             if not isinstance(leader_result, gl.vm.Return):
                 return False
-            validator_data = leader_fn()
-            leader_data = leader_result.calldata
-            # Decision must match
-            if leader_data["decision"] != validator_data["decision"]:
+            raw = gl.nondet.exec_prompt(prompt, response_format="json")
+            if not isinstance(raw, dict):
+                raw = {}
+            decision = str(raw.get("decision", "split")).strip().lower()
+            if decision not in ("freelancer", "client", "split"):
+                decision = "split"
+            try:
+                leader_decision = str(leader_result.calldata["decision"]).strip().lower()
+            except (TypeError, KeyError):
                 return False
-            # Freelancer percent within 10% tolerance
-            return abs(leader_data["freelancer_percent"] - validator_data["freelancer_percent"]) <= 10
+            return decision == leader_decision
 
-        result = gl.vm.run_nondet_unsafe(leader_fn, validator_fn)
+        result = gl.vm.run_nondet(leader_fn, validator_fn)
 
         amount = u256(int(job["amount"]))
         freelancer_pct = result["freelancer_percent"]
